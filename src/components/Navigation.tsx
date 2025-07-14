@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Menu, X, Home, Heart, Search, Settings, Plus, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CATEGORIES } from '@/types/recipe';
 
 interface NavigationProps {
   isEditorMode: boolean;
   isDarkMode: boolean;
   currentCategory: string;
   searchTerm: string;
+  categories: string[];
   onCategoryChange: (category: string) => void;
   onSearchChange: (term: string) => void;
   onToggleDarkMode: () => void;
@@ -24,6 +24,7 @@ export function Navigation({
   isDarkMode,
   currentCategory,
   searchTerm,
+  categories,
   onCategoryChange,
   onSearchChange,
   onToggleDarkMode,
@@ -147,23 +148,23 @@ export function Navigation({
             {/* Categorias */}
             <div className="mt-6">
               <h3 className="text-sm font-medium text-muted-foreground mb-3">Categorias</h3>
-              <div className="space-y-1">
-                {CATEGORIES.map((category) => (
-                  <Button
-                    key={category}
-                    variant={currentCategory === category ? "cream" : "ghost"}
-                    size="sm"
-                    className="w-full justify-start text-xs"
-                    onClick={() => {
-                      onCategoryChange(category);
-                      onViewChange('home');
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
+            <div className="space-y-1">
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={currentCategory === category ? "cream" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start text-xs"
+                  onClick={() => {
+                    onCategoryChange(category);
+                    onViewChange('home');
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
             </div>
           </nav>
         </div>
@@ -215,7 +216,7 @@ export function Navigation({
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Categorias</h3>
             <div className="space-y-1">
-              {CATEGORIES.map((category) => (
+              {categories.map((category) => (
                 <Button
                   key={category}
                   variant={currentCategory === category ? "cream" : "ghost"}

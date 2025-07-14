@@ -20,6 +20,7 @@ export interface AppState {
   currentCategory: string;
   searchTerm: string;
   favorites: string[];
+  categories: string[];
 }
 
 export const CATEGORIES = [

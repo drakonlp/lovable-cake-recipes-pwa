@@ -7,8 +7,9 @@ import { RecipeModal } from '@/components/RecipeModal';
 import { Navigation } from '@/components/Navigation';
 import { EditorLogin } from '@/components/EditorLogin';
 import { RecipeForm } from '@/components/RecipeForm';
+import { CategoryManager } from '@/components/CategoryManager';
+import { AdvancedSearch } from '@/components/AdvancedSearch';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import appBackground from '@/assets/app-background.jpg';
 
 const Index = () => {
@@ -24,7 +25,11 @@ const Index = () => {
     enterEditorMode,
     exitEditorMode,
     filteredRecipes,
-    favoriteRecipes
+    favoriteRecipes,
+    addCategory,
+    editCategory,
+    deleteCategory,
+    getCategoriesWithCount
   } = useAppState();
 
   const [currentView, setCurrentView] = useState('home');
@@ -32,6 +37,7 @@ const Index = () => {
   const [showEditorLogin, setShowEditorLogin] = useState(false);
   const [showRecipeForm, setShowRecipeForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [searchResults, setSearchResults] = useState<Recipe[]>(filteredRecipes);
 
   // Aplicar tema escuro/claro
   useEffect(() => {
@@ -41,6 +47,11 @@ const Index = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [state.isDarkMode]);
+
+  // Sincronizar resultados da busca
+  useEffect(() => {
+    setSearchResults(filteredRecipes);
+  }, [filteredRecipes]);
 
   const handleEditorLogin = (password: string) => {
     return enterEditorMode(password);
@@ -115,26 +126,26 @@ const Index = () => {
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <Search className="h-6 w-6" />
-                Buscar Receitas
+                Busca Avançada
               </h2>
               
-              <Input
-                placeholder="Buscar receitas ou ingredientes..."
-                value={state.searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full max-w-md bg-cake-cream/50 border-cake-pink/30"
+              <AdvancedSearch
+                searchTerm={state.searchTerm}
+                onSearchChange={setSearchTerm}
+                recipes={state.recipes}
+                categories={state.categories}
+                onApplyFilters={setSearchResults}
               />
             </div>
 
-            {state.searchTerm ? (
-              <div>
-                <p className="text-muted-foreground mb-4">
-                  {filteredRecipes.length} resultado{filteredRecipes.length !== 1 ? 's' : ''} 
-                  para "{state.searchTerm}"
-                </p>
-                
+            <div>
+              <p className="text-muted-foreground mb-4">
+                {searchResults.length} resultado{searchResults.length !== 1 ? 's' : ''} encontrado{searchResults.length !== 1 ? 's' : ''}
+              </p>
+              
+              {searchResults.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredRecipes.map((recipe) => (
+                  {searchResults.map((recipe) => (
                     <RecipeCard
                       key={recipe.id}
                       recipe={recipe}
@@ -144,15 +155,15 @@ const Index = () => {
                     />
                   ))}
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  Digite algo para buscar receitas por nome ou ingredientes
-                </p>
-              </div>
-            )}
+              ) : (
+                <div className="text-center py-12">
+                  <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    Nenhuma receita encontrada com os filtros aplicados
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -188,6 +199,14 @@ const Index = () => {
                   Sair do Modo Editor
                 </Button>
               </div>
+
+              <CategoryManager
+                categories={state.categories}
+                onAddCategory={addCategory}
+                onEditCategory={editCategory}
+                onDeleteCategory={deleteCategory}
+                recipesCount={getCategoriesWithCount()}
+              />
 
               <div className="bg-card/50 p-6 rounded-lg border border-cake-pink/20">
                 <h3 className="font-semibold mb-4">Todas as Receitas</h3>
@@ -296,6 +315,7 @@ const Index = () => {
         isDarkMode={state.isDarkMode}
         currentCategory={state.currentCategory}
         searchTerm={state.searchTerm}
+        categories={state.categories}
         onCategoryChange={setCategory}
         onSearchChange={setSearchTerm}
         onToggleDarkMode={toggleDarkMode}
@@ -336,6 +356,7 @@ const Index = () => {
         }}
         onSave={handleSaveRecipe}
         editingRecipe={editingRecipe}
+        categories={state.categories}
       />
     </div>
   );

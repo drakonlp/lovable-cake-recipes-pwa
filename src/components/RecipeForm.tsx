@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { CATEGORIES, DIFFICULTY_LEVELS, Recipe } from '@/types/recipe';
+import { DIFFICULTY_LEVELS, Recipe } from '@/types/recipe';
 import { useToast } from '@/hooks/use-toast';
 
 interface RecipeFormProps {
@@ -14,9 +14,10 @@ interface RecipeFormProps {
   onClose: () => void;
   onSave: (recipe: Omit<Recipe, 'id' | 'favorito' | 'dataCriacao'>) => void;
   editingRecipe?: Recipe | null;
+  categories: string[];
 }
 
-export function RecipeForm({ isOpen, onClose, onSave, editingRecipe }: RecipeFormProps) {
+export function RecipeForm({ isOpen, onClose, onSave, editingRecipe, categories }: RecipeFormProps) {
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -165,7 +166,7 @@ export function RecipeForm({ isOpen, onClose, onSave, editingRecipe }: RecipeFor
                         <SelectValue placeholder="Selecione uma categoria" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CATEGORIES.filter(cat => cat !== 'Todas').map((categoria) => (
+                        {categories.filter(cat => cat !== 'Todas').map((categoria) => (
                           <SelectItem key={categoria} value={categoria}>
                             {categoria}
                           </SelectItem>

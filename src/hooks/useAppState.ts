@@ -102,7 +102,8 @@ const initialState: AppState = {
   isDarkMode: false,
   currentCategory: 'Todas',
   searchTerm: '',
-  favorites: []
+  favorites: [],
+  categories: ['Todas', 'Bolos Simples', 'Bolos Decorados', 'Bolos Sem Glúten', 'Bolos Veganos', 'Bolos de Festa', 'Cupcakes']
 };
 
 export function useAppState() {
@@ -211,6 +212,48 @@ export function useAppState() {
 
   const favoriteRecipes = state.recipes.filter(recipe => state.favorites.includes(recipe.id));
 
+  const addCategory = (category: string) => {
+    if (!state.categories.includes(category)) {
+      setState(prev => ({
+        ...prev,
+        categories: [...prev.categories, category]
+      }));
+    }
+  };
+
+  const editCategory = (oldCategory: string, newCategory: string) => {
+    setState(prev => ({
+      ...prev,
+      categories: prev.categories.map(cat => cat === oldCategory ? newCategory : cat),
+      recipes: prev.recipes.map(recipe => 
+        recipe.categoria === oldCategory ? { ...recipe, categoria: newCategory } : recipe
+      ),
+      currentCategory: prev.currentCategory === oldCategory ? newCategory : prev.currentCategory
+    }));
+  };
+
+  const deleteCategory = (category: string) => {
+    if (category !== 'Todas') {
+      setState(prev => ({
+        ...prev,
+        categories: prev.categories.filter(cat => cat !== category),
+        currentCategory: prev.currentCategory === category ? 'Todas' : prev.currentCategory
+      }));
+    }
+  };
+
+  const getCategoriesWithCount = () => {
+    const counts: Record<string, number> = {};
+    state.categories.forEach(category => {
+      if (category === 'Todas') {
+        counts[category] = state.recipes.length;
+      } else {
+        counts[category] = state.recipes.filter(recipe => recipe.categoria === category).length;
+      }
+    });
+    return counts;
+  };
+
   return {
     state,
     addRecipe,
@@ -223,6 +266,10 @@ export function useAppState() {
     enterEditorMode,
     exitEditorMode,
     filteredRecipes,
-    favoriteRecipes
+    favoriteRecipes,
+    addCategory,
+    editCategory,
+    deleteCategory,
+    getCategoriesWithCount
   };
 }
